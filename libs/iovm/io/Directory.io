@@ -46,11 +46,17 @@ Directory do(
 	accessibleAncestors := method(ancestorDirectories select(isAccessible))
 	
 	//doc Directory parents Deprecated. Replaced by ancestorDirectories.
-	parents := getSlot("ancestorDirectories")
+	parents := method(
+		deprecatedWarning("ancestorDirectories")
+		ancestorDirectories
+	)
 	
 	//doc Directory accessibleParents Deprecated. Replaced by accessibleAncestors.
-	accessibleParents := getSlot("accessibleAncestors")
-
+	accessibleParents := method(
+		deprecatedWarning("accessibleAncestors")
+		accessibleAncestors
+	)
+	
 	//doc Directory files Returns a list of File objects for the files in the Directory (no directories).
 	files := method(items select(type == "File"))
 
@@ -69,27 +75,35 @@ Directory do(
 		files select(f, f name endsWithSeq(ext))
 	)
 
-	//doc Directory directoryNamed(aName) Returns a Directory object for the specified file name or nil if it doesn't exist.
+	//doc Directory directoryNamed(aName) Returns a Directory object for the specified file name whether or not it exists.
 	directoryNamed := method(name,
-		folders detect(i, v, v name == name)
+		Directory with(Path with(path, name))
+		//folders detect(i, v, v name == name)
 	)
+	
 	//doc Directory folderNamed(aName) Deprecated. Replaced by directoryNamed().
-	folderNamed := getSlot("directoryNamed")
-
-
+	folderNamed := method(name,
+		deprecatedWarning("directoryNamed(name)")
+		directoryNamed(name)
+	)
+	
 	//doc Directory remove Removes the directory.
 	remove := method(
 		File clone setPath(self path) remove
 	)
 
+	//doc Directory folderNamedCreateIfAbsent(name) Deprecated. Returns a new Directory object in the directory with the specified name.
 	folderNamedCreateIfAbsent := method(name,
+		deprecatedWarning("directoryNamed(name) create")
 		f := folderNamed(name)
 		if(f, return f)
 		createSubdirectory(name)
 		folderNamed(name)
 	)
 
+	//doc Directory createFileNamed(name) Depracted. Returns a new file object in the directory with the specified name.
 	createFileNamed := method(name,
+		deprecatedWarning("fileNamed(name) create")
 		f := fileNamed(name)
 		if(f, return f)
 		return File clone setPath(Path with(path, name))
@@ -101,5 +115,3 @@ Directory do(
 		self
 	)
 )
-
-
